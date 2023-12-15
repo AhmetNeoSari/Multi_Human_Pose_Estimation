@@ -2,14 +2,15 @@
 This program is a pose estimation program that detects the actions of people in the video.
 input: video
 output: action of people in the video
-mail: asari4137@gmail.com
-author: Ahmet Sari
+mail: asari4137@gmail.com, furkanbulbul2222@gmail.com
+authors: Ahmet Sari, Furkan Bulbul
 """
 
-from yolov5 import YOLO
+from ultralytics import YOLO
 import cv2
 import numpy as np
 import time
+
 
 class PoseEstimationModel:
     def __init__(self, model_path):
@@ -22,9 +23,8 @@ class PoseEstimationModel:
         """
         results = self.model.track(frame, persist=True) # Detect people using YOLO pattern
         return results 
+    
 
-    
-    
     @staticmethod
     def get_person_boxes_and_keypoints(frame, results):
         """
@@ -83,7 +83,6 @@ class ActionAnalyzer:
     def __init__(self):
         pass
 
-
     def analyze_action(self, person:Person, person_keypoints_cordinates, boxes ):
         """
         detects the situation a person is in
@@ -121,7 +120,7 @@ class ActionAnalyzer:
             if (self.left_knee_angle<110) and (self.right_knee_angle<110) and (self.right_hip_angle<95) :  #cokme pozisyonu
                 status = "squatting"
                 
-            elif (abs(int(cordinate[5][1])-int(cordinate[11][1])) < 60) and (ration < 1.0) :        
+            elif (abs(int(cordinate[5][1])-int(cordinate[11][1])) < 60) and (ration < 1.0) :   
                 status = "lie down"
            
             elif(self.left_elbow_angle < 130 or self.right_elbow_angle < 130  ) and ration > 2.0 and (self.left_knee_angle < 150 or self.right_knee_angle < 150):
@@ -142,8 +141,8 @@ class ActionAnalyzer:
         
         
 
-    @staticmethod
-    def calculate_angle(a_x, a_y, b_x, b_y, c_x, c_y):  # 11 13 15 points shoulder elbow wrist
+    @staticmethod 
+    def calculate_angle(a_x, a_y, b_x, b_y, c_x, c_y):  
         """
         Calculating the angle between given joints
         input:
@@ -170,10 +169,10 @@ class ActionAnalyzer:
 
 
 
-class VideoProcessor:
+class VideoProcessor: 
     def __init__(self, model_path, video_source):
-        self.pose_model = PoseEstimationModel(model_path)
-        self.video_source = video_source
+        self.pose_model = PoseEstimationModel(model_path) 
+        self.video_source = video_source 
         self.persons = {} 
 
     def process_video(self):
@@ -181,6 +180,10 @@ class VideoProcessor:
         cap = cv2.VideoCapture(self.video_source) # play video
         action_analyzer = ActionAnalyzer() #object of ActionAnalyzer class
 
+        codec = cv2.VideoWriter_fourcc(*'XVID')
+        frame_rate = 30.0  
+        video_boyutu = (int(cap.get(3)), int(cap.get(4))) 
+        writer = cv2.VideoWriter('recorder_video.avi', codec, frame_rate, video_boyutu) 
 
         while True:
             ret, frame = cap.read() # read video as frame by frame
@@ -217,6 +220,8 @@ class VideoProcessor:
 
                 print(f"Person {person_id}: {person.status}")
            
+
+            writer.write(frame)
             # If you want to show the image you can print it on the screen
             cv2.imshow('YOLO Output', frame)
 
@@ -227,39 +232,12 @@ class VideoProcessor:
 
         # Cleanup operations after video processing is finished
         cap.release()
+        writer.release()
         cv2.destroyAllWindows()
         
 if __name__ == "__main__":
-    model_path = "yolov8m-pose.pt"
+    model_path = "model/yolov8n-pose.pt" # if you want to use yolov8m-pose.pt, you must change the model_path = "yolov8m-pose.pt"
     video_source = "videos/media4.mp4"
 
     video_processor = VideoProcessor(model_path, video_source)
     video_processor.process_video()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
