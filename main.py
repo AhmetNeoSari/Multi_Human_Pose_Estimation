@@ -1,4 +1,12 @@
-from ultralytics import YOLO
+"""
+This program is a pose estimation program that detects the actions of people in the video.
+input: video
+output: action of people in the video
+mail: asari4137@gmail.com
+author: Ahmet Sari
+"""
+
+from yolov5 import YOLO
 import cv2
 import numpy as np
 import time
@@ -15,7 +23,8 @@ class PoseEstimationModel:
         results = self.model.track(frame, persist=True) # Detect people using YOLO pattern
         return results 
 
-
+    
+    
     @staticmethod
     def get_person_boxes_and_keypoints(frame, results):
         """
@@ -73,6 +82,7 @@ class Person:
 class ActionAnalyzer:
     def __init__(self):
         pass
+
 
     def analyze_action(self, person:Person, person_keypoints_cordinates, boxes ):
         """
